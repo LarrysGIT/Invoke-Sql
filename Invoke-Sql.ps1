@@ -7,7 +7,8 @@ function Invoke-Sql(){
         [string]$Password = $null,
         [string]$ConnectionString = $null,
         [int]$ConnectionTimeout = 10,
-        [int]$QueryTimeout = 30
+        [int]$QueryTimeout = 30,
+        [switch]$TrimGOKeyword = $true
     )
     if($ConnectionString)
     {
@@ -20,6 +21,10 @@ function Invoke-Sql(){
         if($Username){$sqlConnectionString += ";User Id=$Database; Password=$Password"}
                  else{$sqlConnectionString += ";Trusted_Connection=True"}
         if($ConnectionTimeout){$sqlConnectionString += ";Connect Timeout=$ConnectionTimeout"}
+    }
+    if($TrimGOKeyword)
+    {
+        $Query = $Query -ireplace "(^|\r|\n)[ \t]*\bGO\b[ \t]*(\r|\n|$)", '$1$2'
     }
     $sql_Conn = New-Object System.Data.SqlClient.SQLConnection
     $sql_Conn.ConnectionString = $sqlConnectionString
