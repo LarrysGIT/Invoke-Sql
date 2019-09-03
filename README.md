@@ -12,7 +12,7 @@ A replacement when invoke-sqlcmd cmdlet is not available
     * Is able to handle the key separator `GO`
     * Is able to handle special characters like `non-breaking space`
     * Unable to handle duplicate columns
-    * Unable to fully handle multiple result sets
+    * Unable to fully handle multiple result sets (when first table is empty)
 
 ## sqlcmd.exe
     * Is able to handle all things
