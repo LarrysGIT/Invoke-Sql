@@ -68,8 +68,8 @@ function Get-TableDefination
         [string]$TableCreationScript
     }
 
-    Import-Module SQLPS
-    $Error.Clear()
+    [Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.Smo') | Out-Null
+
     $options = New-Object -TypeName Microsoft.SqlServer.Management.Smo.ScriptingOptions
     $options.DriAll = $true
     $options.SchemaQualify = $true
@@ -145,7 +145,9 @@ function Invoke-DTSWizard
         $DestinationBulkCopy.DestinationTableName = $TableName
         $DestinationBulkCopy.WriteToServer($SourceSqlReader)
         
+        $SourceSqlReader.Close()
         $SourceConnection.Close()
+        $SourceConnection.Dispose()
         $DestinationBulkCopy.Close()
     }
 
