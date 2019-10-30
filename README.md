@@ -23,6 +23,8 @@ A replacement when invoke-sqlcmd cmdlet is not available
     * Seems not able to handle 'GO'.
     * The ability to handle special characters like 'non-breaking space' needs to be tested
 
+############ something new added on 2019-10-29
+
 # DTSWizard.exe
 The SQL Server data import/export tools is usefully sometimes. Unfortunately, there is no straight way to automate it
 
