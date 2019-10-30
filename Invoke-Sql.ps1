@@ -39,7 +39,7 @@ function Invoke-Sql(){
     return $sql_ds
 }
 
-function Get-TableDefination
+function Get-TableDefinition
 {
     PARAM(
         [string]$ServerInstance,
@@ -151,7 +151,7 @@ function Invoke-DTSWizard
         $DestinationBulkCopy.Close()
     }
 
-    $Tables = Get-TableDefination -ServerInstance $SourceInstance -Database $SourceDatabase -TableNamePattern $TableNamePattern -ConnectionString $SourceConnectionString
+    $Tables = Get-TableDefinition -ServerInstance $SourceInstance -Database $SourceDatabase -TableNamePattern $TableNamePattern -ConnectionString $SourceConnectionString
     foreach($Table in $Tables)
     {
         Write-Host "Copying $($Table.TableName)"
