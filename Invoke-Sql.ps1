@@ -47,7 +47,8 @@ function Get-TableDefinition
         [string]$UserName,
         [string]$Password,
         [string]$ConnectionString,
-        [string]$TableNamePattern
+        [string]$TableNamePattern,
+        [switch]$SimpleTable
     )
 
     if(!$ConnectionString)
@@ -71,7 +72,7 @@ function Get-TableDefinition
     [Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.Smo') | Out-Null
 
     $options = New-Object -TypeName Microsoft.SqlServer.Management.Smo.ScriptingOptions
-    $options.DriAll = $true
+    $options.DriAll = !$SimpleTable
     $options.SchemaQualify = $true
 
     $connection = New-Object -TypeName Microsoft.SqlServer.Management.Common.ServerConnection
@@ -137,12 +138,12 @@ function Invoke-DTSWizard
             [string]$TableName
         )
         $SourceConnection = New-Object System.Data.SqlClient.SQLConnection($SourceConnectionString)
-        $SourceSqlCommand = New-Object system.Data.SqlClient.SqlCommand("Select * From $TableName;", $SourceConnection)
+        $SourceSqlCommand = New-Object system.Data.SqlClient.SqlCommand("Select * From [$TableName];", $SourceConnection)
         $SourceConnection.Open()
         [System.Data.SqlClient.SqlDataReader]$SourceSqlReader = $SourceSqlCommand.ExecuteReader()
 
         $DestinationBulkCopy = New-Object Data.SqlClient.SqlBulkCopy($DestinationConnectionString, [System.Data.SqlClient.SqlBulkCopyOptions]::KeepIdentity)
-        $DestinationBulkCopy.DestinationTableName = $TableName
+        $DestinationBulkCopy.DestinationTableName = "[$TableName]"
         $DestinationBulkCopy.WriteToServer($SourceSqlReader)
         
         $SourceSqlReader.Close()
@@ -151,12 +152,12 @@ function Invoke-DTSWizard
         $DestinationBulkCopy.Close()
     }
 
-    $Tables = Get-TableDefinition -ServerInstance $SourceInstance -Database $SourceDatabase -TableNamePattern $TableNamePattern -ConnectionString $SourceConnectionString
+    $Tables = Get-TableDefinition -ServerInstance $SourceInstance -Database $SourceDatabase -TableNamePattern $TableNamePattern -ConnectionString $SourceConnectionString -SimpleTable
     foreach($Table in $Tables)
     {
-        Write-Host "Copying $($Table.TableName)"
+        Write-Host "Copying [$($Table.TableName)]"
         # drop destination table
-        Invoke-Sql -Query "Drop table if exists $($Table.TableName);" -Database $DestinationDatabase -ServerInstance $DestinationInstance
+        Invoke-Sql -Query "Drop table if exists [$($Table.TableName)];" -Database $DestinationDatabase -ServerInstance $DestinationInstance
         # create destination table
         Invoke-Sql -Query $Table.TableCreationScript -Database $DestinationDatabase -ServerInstance $DestinationInstance
         # CopyTable
