@@ -99,7 +99,8 @@ function Invoke-DTSWizard
         [string]$DestinationDatabase,
         [string]$DestinationUserName,
         [string]$DestinationPassword,
-        [string]$DestinationConnectionString
+        [string]$DestinationConnectionString,
+        [switch]$DisableKeyConstraintCheck
     )
 
     # Build source connection string
@@ -153,6 +154,13 @@ function Invoke-DTSWizard
     }
 
     $Tables = Get-TableDefinition -ServerInstance $SourceInstance -Database $SourceDatabase -TableNamePattern $TableNamePattern -ConnectionString $SourceConnectionString -SimpleTable
+    if($DisableKeyConstraintCheck)
+    {
+        foreach($Table in $Tables)
+        {
+            Invoke-Sql -Query "ALTER TABLE [$($Table.TableName)] NOCHECK CONSTRAINT ALL;" -Database $DestinationDatabase -ServerInstance $DestinationInstance | Out-Null
+        }
+    }
     foreach($Table in $Tables)
     {
         Write-Host "Copying [$($Table.TableName)]"
